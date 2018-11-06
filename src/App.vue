@@ -183,7 +183,7 @@ const uuid = require('uuid')
         axios.post('http://localhost:5002/api/user', user) 
         // console.log(user)
           .then(res => {
-            this.dataUser = res.data
+            this.dataUser.push(res.data)
           })
           this.newUser.name = ''
           this.newUser.email = ''

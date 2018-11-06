@@ -1,38 +1,37 @@
 const express = require('express')
 const cors = require('cors')
-const app = express()
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
 const port = 5002
+const app = express()
+
+const user = require('./models/Users')
 
 app.use(cors())
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-var data = []
+const db = 'mongodb://localhost:27017/demouser'
 
-app.get('/api/user', (req, res) => res.send(data))
+mongoose.connect(db, { useNewUrlParser: true })
+  .then(() => console.log("MongoDb Connect..."))
+  .catch(err => console.log(err))
+
+app.get('/api/user', (req, res) => {
+  user.find()
+    .sort({ date: -1 })
+    .then(item => res.json(item));
+})
+
+// insert User
 app.post('/api/user', (req, res) => {
-  data.push(req.body)
-  res.send(data)
-})
-app.post('/api/deleteuser', (req, res) => {
-  let arr = data.filter(item => {
-    if (item.id !== req.body.id) {
-      return item
-    }
+  const newUser = new user({
+    name: req.body.name,
+    email: req.body.email
   })
-  data = arr
-  res.send(data)
+  newUser.save()
+    .then(item => res.json(item))
 })
-app.post('/api/edituser', (req, res) => {
-  data.forEach(e => {
-    if (e.id = req.body.id) {
-      e.id = req.body.id
-      e.name = req.body.name
-      e.email = req.body.email
-    }
-  })
-  res.send(data)
-})
+
 app.listen(port, () => console.log(`listening on port ${port}!`))
